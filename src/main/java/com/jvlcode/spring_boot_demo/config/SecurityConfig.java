@@ -26,13 +26,11 @@ public class SecurityConfig {
         .authorizeHttpRequests(authz -> 
             // Allow all requests to /api/users/** without authentication
             authz.requestMatchers("/api/users/**").authenticated()
+            .requestMatchers("/home").authenticated()
             .anyRequest().permitAll()
         )
         .formLogin(form -> form
-                .successHandler((request, response, authentication) -> { 
-                    response.getWriter().write("Login Successful!"); // Return text after login
-                    response.setStatus(200); // HTTP 200 OK
-                })
+        		.defaultSuccessUrl("/home")
                 .permitAll()
             );
         

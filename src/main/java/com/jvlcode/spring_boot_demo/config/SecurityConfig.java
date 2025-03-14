@@ -28,9 +28,13 @@ public class SecurityConfig {
             authz.requestMatchers("/api/users/**").authenticated()
             .anyRequest().permitAll()
         )
-        .formLogin( form -> form
-        		.defaultSuccessUrl("/home")
-        		.permitAll());
+        .formLogin(form -> form
+                .successHandler((request, response, authentication) -> { 
+                    response.getWriter().write("Login Successful!"); // Return text after login
+                    response.setStatus(200); // HTTP 200 OK
+                })
+                .permitAll()
+            );
         
         // Build and return the configured SecurityFilterChain
         return http.build();

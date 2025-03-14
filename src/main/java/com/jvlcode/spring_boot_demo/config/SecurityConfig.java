@@ -1,11 +1,16 @@
 package com.jvlcode.spring_boot_demo.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,10 +33,12 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable()) // Disable CSRF for testing (enable in production)
         .authorizeHttpRequests(authz -> authz
         		// ✅ Allow unauthenticated users to create a new user
-                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+
+            .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
         		
-        // ✅ Require authentication for other user-related requests
-        .requestMatchers("/api/users/**").authenticated()
+	        // ✅ Require authentication for other user-related requests
+	        .requestMatchers("/api/users/**").authenticated()
         
      
         
@@ -40,10 +47,13 @@ public class SecurityConfig {
         .anyRequest().permitAll()
         )
         
-        .formLogin(form -> form
-        		.defaultSuccessUrl("/home")
-                .permitAll()
-        );
+//        .formLogin(form -> form
+//        		.defaultSuccessUrl("/home")
+//                .permitAll()
+//        )
+//        .formLogin(form -> form.disable()) // Disable default login form
+//        .httpBasic(basic -> basic.disable()) // Disable HTTP Basic Auth
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         
         // Build and return the configured SecurityFilterChain
         return http.build();
@@ -98,5 +108,10 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider; // Return the configured authentication provider
+    }
+    
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(List.of(authenticationProvider()));
     }
 }

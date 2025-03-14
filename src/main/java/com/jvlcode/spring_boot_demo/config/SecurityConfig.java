@@ -20,8 +20,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(authz -> 
             // Allow all requests to /api/users/** without authentication
             authz.requestMatchers("/api/users/**").authenticated()
+            .anyRequest().permitAll()
         )
-        ;
+        .formLogin( form -> form.permitAll());
         
         // Build and return the configured SecurityFilterChain
         return http.build();
